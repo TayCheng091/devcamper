@@ -1,3 +1,5 @@
+// Sample : https://github.com/bradtraversy/devcamper-api
+
 const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
@@ -19,6 +21,9 @@ const app = express();
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
+
+// body parser
+app.use(express.json());
 
 // Mount routers
 app.use("/api/v1/bootcamps", bootcamps);
