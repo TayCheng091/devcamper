@@ -65,6 +65,7 @@ exports.getCourse = asyncHandler(async (req, res, next) => {
  */
 exports.addCourse = asyncHandler(async (req, res, next) => {
   const bootcamp = await Bootcamp.findById(req.params.bootcampId);
+  req.body.bootcamp = req.params.bootcampId;
 
   if (!bootcamp) {
     return next(
@@ -73,11 +74,61 @@ exports.addCourse = asyncHandler(async (req, res, next) => {
     );
   }
 
-  req.body.bootcamp = req.params.bootcampId;
   const course = await Course.create(req.body);
 
   res.status(200).json({
     success: true,
     data: course,
+  });
+});
+
+/**
+ * @desc Update courses
+ * @route PUT /api/v1/courses/:id
+ * @access Private
+ */
+exports.updateCourse = asyncHandler(async (req, res, next) => {
+  let course = await Course.findById(req.params.id);
+
+  if (!course) {
+    return next(
+      new ErrorResponse(`No course with the id of ${req.params.id}`),
+      404
+    );
+  }
+
+  // const data = await course.updateOne(req.body);
+
+  course = await Course.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  res.status(200).json({
+    success: true,
+    data: course,
+  });
+});
+
+/**
+ * @desc Delete courses
+ * @route DELETE /api/v1/courses/:id
+ * @access Private
+ */
+exports.deleteCourse = asyncHandler(async (req, res, next) => {
+  const course = await Course.findById(req.params.id);
+
+  if (!course) {
+    return next(
+      new ErrorResponse(`No course with the id of ${req.params.id}`),
+      404
+    );
+  }
+
+  await course.deleteOne();
+
+  res.status(200).json({
+    success: true,
+    data: {},
   });
 });
