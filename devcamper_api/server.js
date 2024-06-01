@@ -1,9 +1,11 @@
 // Sample : https://github.com/bradtraversy/devcamper-api
 
+const path = require("path");
 const express = require("express");
 const dotenv = require("dotenv");
 const morgan = require("morgan");
 const connectDB = require("./config/db");
+const fileupload = require("express-fileupload");
 const errorHandler = require("./middleware/error");
 const colors = require("colors");
 
@@ -23,6 +25,12 @@ const app = express();
 if (process.env.NODE_ENV === "development") {
   app.use(morgan("dev"));
 }
+
+// Set static folder
+app.use(express.static(__dirname + "/public"));
+
+// File uploading
+app.use(fileupload());
 
 // body parser
 app.use(express.json());
