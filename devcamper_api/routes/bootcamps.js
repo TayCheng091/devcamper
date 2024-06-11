@@ -17,21 +17,25 @@ const courseRouter = require("./courses");
 
 const router = express.Router();
 
+const { protect, authorize } = require("../middleware/auth");
+
 // Re-route into other resource routers
 router.use("/:bootcampId/courses", courseRouter);
 
-router.route("/:id/photo").put(bootcampPhotoUpload);
+router
+  .route("/:id/photo")
+  .put(protect, authorize("publisher", "admin"), bootcampPhotoUpload);
 
 router
   .route("/")
   .get(advancedResults(Bootcamp, "courses"), getBootcamps)
-  .put(createBootcamp);
+  .post(protect, authorize("publisher", "admin"), createBootcamp);
 
 router
   .route("/:id")
   .get(getBootcamp)
-  .put(updateBootcamp)
-  .delete(deleteBootcamp);
+  .put(protect, updateBootcamp)
+  .delete(protect, authorize("publisher", "admin"), deleteBootcamp);
 
 // Without controller
 // router.get("/", (req, res) => {

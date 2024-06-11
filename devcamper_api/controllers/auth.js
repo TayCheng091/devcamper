@@ -18,9 +18,7 @@ exports.register = asyncHandler(async (req, res, next) => {
   });
 
   // Create token (method from User model)
-  const token = user.getSignedJwtToken();
-
-  res.status(200).json({ success: true, token });
+  sendTokenResponse(user, 200, res);
 });
 
 /**
@@ -51,7 +49,39 @@ exports.login = asyncHandler(async (req, res, next) => {
   }
 
   // Create token (method from User model)
+  sendTokenResponse(user, 200, res);
+});
+
+// Get token from model, create cookie and send response
+const sendTokenResponse = (user, statusCode, res) => {
+  // Create token (method from User model)
   const token = user.getSignedJwtToken();
 
-  res.status(200).json({ success: true, token });
+  const options = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  if (process.env.NODE_ENV === "production") {
+    options.secure = true;
+  }
+
+  res
+    .status(statusCode)
+    .cookie("token", token, options)
+    .json({ success: true, token });
+};
+
+/**
+ * @desc Get current logged in user
+ * @route GET /api/v1/auth/me
+ * @access Private
+ */
+exports.getMe = asyncHandler(async (req, res, next) => {
+  console.log(req);
+  const user = await User.findById(req.user.id);
+
+  res.status(200).json({ success: true, data: user });
 });
